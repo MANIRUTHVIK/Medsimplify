@@ -1,0 +1,78 @@
+// Prisma schema for MedSimplify
+// Neon Serverless PostgreSQL Database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  gender       Gender?
+  dateOfBirth  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  reports      Report[]
+
+  @@map("users")
+}
+
+model Report {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename        String
+  mime            String
+  fileUrl         String      // Cloudinary secure URL
+  publicId        String      // Cloudinary public ID for deletion
+  resourceType    String      // "image" | "raw" | "auto"
+  summary         String?     @db.Text
+  doctorQuestions String?     @db.Text // JSON array of questions to ask doctor
+  uploadedAt      DateTime    @default(now())
+  results         Result[]
+  chats           QaHistory[]
+
+  @@map("reports")
+}
+
+model Result {
+  id              String   @id @default(cuid())
+  reportId        String
+  report          Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  test            String
+  value           Float
+  unit            String?
+  refLow          Float?
+  refHigh         Float?
+  status          String   // "Normal" | "Low" | "High"
+  deviation       Float?   // % deviation from reference range boundary
+  isFallbackRange Boolean  @default(false) // True if reference range was derived from patient age/gender
+  interpretation  String?  @db.Text
+
+  @@map("results")
+}
+
+model QaHistory {
+  id       String   @id @default(cuid())
+  reportId String
+  report   Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  question String   @db.Text
+  answer   String   @db.Text
+  provider String   @default("groq") // Primary "groq" with "gemini" fallback
+  askedAt  DateTime @default(now())
+
+  @@map("qa_history")
+}

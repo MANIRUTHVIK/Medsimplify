@@ -1,0 +1,782 @@
+@import "tailwindcss";
+@plugin "tailwindcss-motion";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+:root {
+  --radius: 0.75rem;
+
+  --clr-blue-main: hsl(191, 60%, 58%);
+  --clr-blue-dark: hsl(220, 45%, 31%);
+  --clr-blue-light: hsl(191, 70%, 62%);
+  --clr-navy-deep: hsl(220, 23%, 12%);
+  --clr-mist: hsl(186, 33%, 95%);
+  --clr-blue-support: hsl(226, 28%, 60%);
+  --clr-blue-muted: hsl(226, 28%, 60%);
+
+  --clr-green: hsl(162, 95%, 42%);
+  --clr-yellow: hsl(48, 100%, 50%);
+  --clr-coral: hsl(0, 70%, 50%);
+
+  /* Legacy Variables - Updated to match brand */
+  --background: hsl(186, 33%, 95%);
+  --foreground: hsl(220, 23%, 12%);
+
+  --primary: hsl(191, 60%, 58%, 1);
+  --primary-hover: hsl(191, 60%, 62%, 1);
+  --primary-foreground: hsl(0, 0%, 100%, 1);
+
+  --secondary: hsl(220, 45%, 31%);
+  --secondary-hover: hsl(220, 23%, 12%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+
+  --success: hsl(162, 95%, 42%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --success-hover: hsl(162, 95%, 22%);
+
+  --destructive: hsl(0, 70%, 50%);
+
+  --lead-qualified: hsl(142, 76%, 36%);
+  --lead-qualified-foreground: hsl(0, 0%, 100%);
+
+  --warning: hsl(48, 100%, 50%);
+
+  --muted: hsl(186, 33%, 95%);
+  --muted-foreground: hsl(226, 28%, 60%);
+
+  --primary-alt: hsl(48, 100%, 50%);
+  --primary-alt-foreground: hsl(0, 0%, 100%);
+
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(220, 23%, 12%);
+
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(220, 23%, 12%);
+
+  --sidebar: hsl(0, 0%, 100%);
+  --sidebar-muted-foreground: hsl(226, 28%, 60%);
+  --sidebar-foreground: hsl(220, 45%, 31%);
+  --sidebar-primary: hsl(220, 23%, 12%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(191, 60%, 58%);
+  --sidebar-accent-foreground: hsl(0, 0%, 100%);
+  --sidebar-border: transparent;
+  --sidebar-ring: hsl(226, 28%, 60%);
+
+  --border: hsl(220, 20%, 94%);
+
+  --badge: hsl(220, 45%, 31%);
+
+  --carousel-active: hsl(191, 60%, 58%);
+  --carousel-inactive: hsl(0, 0%, 100%);
+
+  --auth-card-shadow: 0px 4px 134px 0px hsl(191, 60%, 58%, 0.12);
+
+  --header-height: 5rem;
+  /* Use dvh (dynamic viewport height) for iOS Safari compatibility */
+  --main-content-height: calc(100dvh - var(--header-height));
+  /* Fallback for browsers that don't support dvh */
+  --main-content-height-fallback: calc(100vh - var(--header-height));
+
+  --alert-success: hsl(142, 72%, 36%);
+  --alert-warning: hsl(38, 92%, 50%);
+  --alert-critical: hsl(0, 72%, 50%);
+
+  --status-info: hsl(217, 91%, 60%); 
+  --status-info-hover: hsl(217, 81%, 55%);
+  --status-info-foreground: hsl(227, 78%, 40%); 
+  --status-info-strong: hsl(225, 74%, 33%); 
+  --status-info-bg: hsl(213, 100%, 97%); 
+  --status-info-soft: hsl(213, 97%, 93%); 
+  --status-info-border: hsl(213, 96%, 86%); 
+  --status-info-alt-bg: hsl(234, 100%, 97%); 
+
+  --status-success: hsl(142, 72%, 36%); 
+  --status-success-foreground: hsl(148, 65%, 24%); 
+  --status-success-strong: hsl(150, 66%, 20%); 
+  --status-success-bg: hsl(138, 76%, 97%); 
+  --status-success-soft: hsl(143, 76%, 92%); 
+  --status-success-border: hsl(143, 76%, 84%);
+
+  --status-warning: hsl(38, 92%, 50%);
+  --status-warning-foreground: hsl(32, 95%, 28%);
+  --status-warning-strong: hsl(28, 80%, 25%);
+  --status-warning-bg: hsl(48, 100%, 97%);
+  --status-warning-soft: hsl(48, 96%, 90%);
+  --status-warning-border: hsl(48, 90%, 80%);
+
+  --status-error: hsl(0, 72%, 50%); 
+  --status-error-hover: hsl(0, 76%, 41%); 
+  --status-error-foreground: hsl(0, 76%, 41%); 
+  --status-error-strong: hsl(0, 74%, 29%); 
+  --status-error-bg: hsl(0, 93%, 97%);
+  --status-error-soft: hsl(0, 93%, 93%); 
+  --status-error-border: hsl(0, 93%, 86%);
+
+  --status-neutral: hsl(220, 9%, 46%); 
+  --status-neutral-subtle: hsl(220, 9%, 61%); 
+  --status-neutral-soft: hsl(220, 9%, 75%); 
+  --status-neutral-strong: hsl(220, 13%, 18%); 
+  --status-neutral-bg: hsl(210, 17%, 98%); 
+  --status-neutral-muted: hsl(210, 17%, 95%); 
+  --status-neutral-border: hsl(210, 16%, 92%);
+
+  /* Chart Colors */
+  --chart-1: hsl(191, 60%, 58%);
+  --chart-2: hsl(220, 45%, 31%);
+  --chart-3: hsl(142, 72%, 36%);
+  --chart-4: hsl(38, 92%, 50%);
+  --chart-5: hsl(0, 72%, 50%); 
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--muted);
+  --color-accent-foreground: var(--muted-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-hover: var(--success-hover);
+
+  --color-destructive: var(--destructive);
+
+  --color-warning: var(--warning);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-primary-alt: var(--primary-alt);
+  --color-primary-alt-foreground: var(--primary-alt-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-carousel-active: var(--carousel-active);
+  --color-carousel-inactive: var(--carousel-inactive);
+
+  --color-badge: var(--badge);
+  --spacing-header: var(--header-height);
+  --spacing-main-content: var(--main-content-height);
+
+  --color-alert-success: var(--alert-success);
+  --color-alert-warning: var(--alert-warning);
+  --color-alert-critical: var(--alert-critical);
+
+  /* Inline theme colors for status tokens */
+  --color-status-info: var(--status-info);
+  --color-status-info-hover: var(--status-info-hover);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-info-strong: var(--status-info-strong);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-info-soft: var(--status-info-soft);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-info-alt-bg: var(--status-info-alt-bg);
+
+  --color-status-success: var(--status-success);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-success-strong: var(--status-success-strong);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-success-soft: var(--status-success-soft);
+  --color-status-success-border: var(--status-success-border);
+
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-warning-strong: var(--status-warning-strong);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-warning-soft: var(--status-warning-soft);
+  --color-status-warning-border: var(--status-warning-border);
+
+  --color-status-error: var(--status-error);
+  --color-status-error-hover: var(--status-error-hover);
+  --color-status-error-foreground: var(--status-error-foreground);
+  --color-status-error-strong: var(--status-error-strong);
+  --color-status-error-bg: var(--status-error-bg);
+  --color-status-error-soft: var(--status-error-soft);
+  --color-status-error-border: var(--status-error-border);
+
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-subtle: var(--status-neutral-subtle);
+  --color-status-neutral-soft: var(--status-neutral-soft);
+  --color-status-neutral-strong: var(--status-neutral-strong);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-neutral-muted: var(--status-neutral-muted);
+  --color-status-neutral-border: var(--status-neutral-border);
+
+  /* Chart tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-display: var(--font-poppins), "Poppins", system-ui, sans-serif;
+
+  /* Page-level type scale (display) */
+  --text-page-title: 1.875rem;        /* 30px */
+  --text-page-title--line-height: 2.25rem;
+  --text-page-title--letter-spacing: -0.02em;
+  --text-page-title--font-weight: 600;
+
+  --text-section-title: 1.125rem;     /* 18px */
+  --text-section-title--line-height: 1.5rem;
+  --text-section-title--letter-spacing: -0.01em;
+  --text-section-title--font-weight: 600;
+
+  --text-card-title: 0.875rem;        /* 14px */
+  --text-card-title--line-height: 1.25rem;
+  --text-card-title--font-weight: 600;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+/* iOS Safari scrolling optimizations */
+html {
+  /* Fallback: Use 100vh for browsers that don't support dvh */
+  height: 100vh;
+  /* Use 100dvh (dynamic viewport height) for better iOS Safari support - browsers that support it will use this */
+  height: 100dvh;
+  /* Prevent iOS Safari from disabling scroll when address bar shows/hides */
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  height: 100%;
+  /* Enable smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent iOS Safari from disabling scroll */
+  overscroll-behavior-y: contain;
+  /* Allow touch scrolling in both directions (needed for horizontal scroll containers and carousels) */
+  touch-action: pan-x pan-y;
+}
+
+.cl-formButtonPrimary {
+  background-color: var(--primary);
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0 0 0.25rem var(--primary) !important;
+  &:hover {
+    background-color: var(--primary-hover);
+  }
+}
+.cl-headerTitle {
+  color: var(--secondary);
+}
+.cl-headerSubtitle {
+  color: var(--muted-foreground);
+}
+.sign-in-link {
+  color: var(--secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--secondary);
+  text-underline-offset: 2px;
+  &:hover {
+    color: var(--secondary-hover);
+    text-decoration-color: var(--secondary-hover);
+  }
+}
+
+/* Toast Styling for Sonner */
+[data-sonner-toaster] {
+  --normal-bg: var(--card);
+  --normal-border: var(--border);
+  --normal-text: var(--card-foreground);
+  --success-bg: var(--card);
+  --success-border: var(--success);
+  --success-text: var(--success);
+  --error-bg: var(--card);
+  --error-border: var(--destructive);
+  --error-text: var(--destructive);
+  --warning-bg: var(--card);
+  --warning-border: var(--warning);
+  --warning-text: var(--warning);
+}
+
+[data-sonner-toast] {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-color: var(--success) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: var(--success) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-color: var(--destructive) !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: var(--destructive) !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  border-color: var(--warning) !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-title] {
+  color: var(--warning) !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: var(--muted-foreground) !important;
+  opacity: 1 !important;
+  font-weight: 400 !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 500 !important;
+  color: var(--card-foreground) !important;
+}
+
+/* Ensure proper contrast in dark mode */
+.dark [data-sonner-toast] {
+  background: var(--card) !important;
+  color: var(--card-foreground) !important;
+}
+
+.dark [data-sonner-toast] [data-description] {
+  color: var(--muted-foreground) !important;
+}
+
+.dark [data-sonner-toast][data-type="success"] [data-title] {
+  color: var(--success) !important;
+}
+
+.dark [data-sonner-toast][data-type="error"] [data-title] {
+  color: var(--destructive) !important;
+}
+
+.dark [data-sonner-toast][data-type="warning"] [data-title] {
+  color: var(--warning) !important;
+}
+
+@keyframes scan-line {
+  0% {
+    top: 0%;
+    opacity: 1;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    top: 50%;
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 1;
+  }
+}
+
+@keyframes image-scan {
+  0% {
+    background-position: center -10%;
+  }
+  50% {
+    background-position: center center;
+  }
+  100% {
+    background-position: center 110%;
+  }
+}
+
+.animate-scan-line {
+  animation: scan-line 2s ease-in-out infinite alternate;
+}
+
+.animate-image-scan {
+  animation: image-scan 4s ease-in-out infinite alternate;
+}
+
+@keyframes scan-document {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scan-document {
+  animation: scan-document 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Empty Patient Card Animations */
+.empty-patient-gradient {
+  opacity: 0;
+  animation: fadeIn 2s ease-out 1.2s forwards;
+}
+
+.empty-patient-text {
+  opacity: 0;
+  animation: fadeIn 1s ease-out 0.6s forwards;
+}
+.empty-patient-button {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out 2.4s forwards;
+}
+.empty-patient-card-1 {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 3.8s forwards;
+}
+.empty-patient-card-2 {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 4s forwards;
+}
+.empty-patient-card-3 {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 4.2s forwards;
+}
+.empty-patient-card-4 {
+  opacity: 0;
+  animation: fadeInUp 0.8s ease-out 4.4s forwards;
+}
+
+.empty-patient-icons {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out 3.7s forwards;
+}
+
+.empty-patient-icon-1 {
+  animation:
+    iconAppear 0.3s ease-out 3.7s forwards,
+    floatSlow1 25s ease-in-out 4s infinite;
+}
+.empty-patient-icon-2 {
+  animation:
+    iconAppear 0.3s ease-out 3.8s forwards,
+    floatSlow2 30s ease-in-out 4.1s infinite;
+}
+.empty-patient-icon-3 {
+  animation:
+    iconAppear 0.3s ease-out 3.9s forwards,
+    floatSlow3 35s ease-in-out 4.2s infinite;
+}
+.empty-patient-icon-4 {
+  animation:
+    iconAppear 0.3s ease-out 4s forwards,
+    floatSlow1 28s ease-in-out 4.3s infinite;
+}
+.empty-patient-icon-5 {
+  animation:
+    iconAppear 0.3s ease-out 4.1s forwards,
+    floatSlow2 32s ease-in-out 4.4s infinite;
+}
+.empty-patient-icon-6 {
+  animation:
+    iconAppear 0.3s ease-out 4.2s forwards,
+    floatSlow3 26s ease-in-out 4.5s infinite;
+}
+.empty-patient-icon-7 {
+  animation:
+    iconAppear 0.3s ease-out 4.3s forwards,
+    floatSlow1 34s ease-in-out 4.6s infinite;
+}
+.empty-patient-icon-8 {
+  animation:
+    iconAppear 0.3s ease-out 4.4s forwards,
+    floatSlow2 38s ease-in-out 4.7s infinite;
+}
+.empty-patient-icon-9 {
+  animation:
+    iconAppear 0.3s ease-out 4.5s forwards,
+    floatSlow3 22s ease-in-out 4.8s infinite;
+}
+.empty-patient-icon-10 {
+  animation:
+    iconAppear 0.3s ease-out 4.6s forwards,
+    floatSlow1 40s ease-in-out 4.9s infinite;
+}
+.empty-patient-icon-11 {
+  animation:
+    iconAppear 0.3s ease-out 4.7s forwards,
+    floatSlow2 28s ease-in-out 5s infinite;
+}
+.empty-patient-icon-12 {
+  animation:
+    iconAppear 0.3s ease-out 4.8s forwards,
+    floatSlow3 32s ease-in-out 5.1s infinite;
+}
+.empty-patient-icon-13 {
+  animation:
+    iconAppear 0.3s ease-out 4.9s forwards,
+    floatSlow1 36s ease-in-out 5.2s infinite;
+}
+.empty-patient-icon-14 {
+  animation:
+    iconAppear 0.3s ease-out 5s forwards,
+    floatSlow2 24s ease-in-out 5.3s infinite;
+}
+.empty-patient-icon-15 {
+  animation:
+    iconAppear 0.3s ease-out 5.1s forwards,
+    floatSlow3 30s ease-in-out 5.4s infinite;
+}
+.empty-patient-icon-16 {
+  animation:
+    iconAppear 0.3s ease-out 5.2s forwards,
+    floatSlow1 26s ease-in-out 5.5s infinite;
+}
+.empty-patient-icon-17 {
+  animation:
+    iconAppear 0.3s ease-out 5.3s forwards,
+    floatSlow2 34s ease-in-out 5.6s infinite;
+}
+.empty-patient-icon-18 {
+  animation:
+    iconAppear 0.3s ease-out 5.4s forwards,
+    floatSlow3 38s ease-in-out 5.7s infinite;
+}
+.empty-patient-icon-19 {
+  animation:
+    iconAppear 0.3s ease-out 5.5s forwards,
+    floatSlow1 42s ease-in-out 5.8s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes iconAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes floatSlow1 {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(5px, -8px) rotate(2deg);
+  }
+  50% {
+    transform: translate(-3px, -12px) rotate(-1deg);
+  }
+  75% {
+    transform: translate(-7px, -5px) rotate(1deg);
+  }
+}
+
+@keyframes floatSlow2 {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-6px, -10px) rotate(-2deg);
+  }
+  40% {
+    transform: translate(4px, -15px) rotate(1deg);
+  }
+  60% {
+    transform: translate(8px, -8px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-2px, -3px) rotate(2deg);
+  }
+}
+
+@keyframes floatSlow3 {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  30% {
+    transform: translate(7px, -6px) rotate(1deg);
+  }
+  60% {
+    transform: translate(-5px, -14px) rotate(-2deg);
+  }
+  90% {
+    transform: translate(3px, -9px) rotate(1deg);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* iOS Safari smooth scrolling for scrollable containers */
+.overflow-y-auto,
+[class*="overflow-y-auto"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* iOS Safari support for DialogContent with overflow */
+[data-slot="dialog-content"][class*="overflow-y-auto"],
+[data-slot="dialog-content"].overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Safe Area Padding for Bottom Tabbar */
+.safe-area-padding-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Animated wavy gradient for alert pill */
+@keyframes wavy-gradient {
+  0% {
+    box-shadow:
+      0 10px 25px -5px rgba(86, 173, 202, 0.2),
+      0 8px 10px -6px rgba(86, 173, 202, 0.2);
+  }
+  25% {
+    box-shadow:
+      0 12px 30px -6px rgba(86, 173, 202, 0.4),
+      0 10px 15px -7px rgba(86, 173, 202, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 15px 35px -7px rgba(86, 173, 202, 0.6),
+      0 12px 20px -8px rgba(86, 173, 202, 0.4);
+  }
+  75% {
+    box-shadow:
+      0 12px 30px -6px rgba(86, 173, 202, 0.4),
+      0 10px 15px -7px rgba(86, 173, 202, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 10px 25px -5px rgba(86, 173, 202, 0.2),
+      0 8px 10px -6px rgba(86, 173, 202, 0.2);
+  }
+}
+
+.animate-wavy-gradient {
+  animation: wavy-gradient 3s ease-in-out infinite;
+}
+
+/* Scrolling ticker animation */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-2000%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 480s linear infinite;
+}
+
+/* Hide Phone Numbers Section in Clerk UserProfile */
+[data-testid="phone-numbers-section"],
+[data-testid="phone-number-field"],
+.cl-userProfile-phoneNumbersSection,
+.cl-phoneNumbersSection {
+  display: none !important;
+}
+
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}

@@ -20,14 +20,17 @@ export async function askGroqQA(
   history: ChatHistoryMessage[] = []
 ): Promise<string> {
   const groq = getGroqClient();
-  const candidateModels = [
-    process.env.GROQ_MODEL,
-    "llama-3.3-70b-versatile",
-    "openai/gpt-oss-120b",
-    "llama-3.1-8b-instant",
-    "llama-3.1-70b-versatile",
-    "llama3-70b-8192",
-  ].filter(Boolean) as string[];
+  const candidateModels = Array.from(
+    new Set(
+      [
+        process.env.GROQ_MODEL,
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+        "mixtral-8x7b-32768",
+        "gemma2-9b-it",
+      ].filter(Boolean) as string[]
+    )
+  );
 
   const contextText = getQAContextPrompt(reportContext);
   const recentHistory = history.slice(-15);
@@ -76,14 +79,17 @@ export async function extractReportWithGroq(
   patientContext?: { gender?: string | null; age?: number | null }
 ): Promise<RawAnalysisResponse> {
   const groq = getGroqClient();
-  const candidateModels = [
-    process.env.GROQ_MODEL,
-    "llama-3.3-70b-versatile",
-    "openai/gpt-oss-120b",
-    "llama-3.1-8b-instant",
-    "llama-3.1-70b-versatile",
-    "llama3-70b-8192",
-  ].filter(Boolean) as string[];
+  const candidateModels = Array.from(
+    new Set(
+      [
+        process.env.GROQ_MODEL,
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+        "mixtral-8x7b-32768",
+        "gemma2-9b-it",
+      ].filter(Boolean) as string[]
+    )
+  );
 
   const systemInstruction = getAnalysisSystemPrompt(patientContext);
 

@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 const JWT_SECRET_STRING = process.env.JWT_SECRET || "medsimplify_fallback_secret_key_minimum_32_chars";
 const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get("medsimplify_session")?.value;
   const { pathname } = request.nextUrl;
 

@@ -42,6 +42,23 @@ export function formatDate(date: string | Date | null | undefined): string {
 }
 
 /**
+ * Formats a time deterministically (e.g. "01:03 PM") across SSR and client browsers.
+ */
+export function formatTime(date: string | Date | null | undefined = new Date()): string {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  let hours = d.getHours();
+  const minutes = d.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const strHours = hours < 10 ? `0${hours}` : `${hours}`;
+  const strMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+  return `${strHours}:${strMinutes} ${ampm}`;
+}
+
+/**
  * Normalizes report filename for presentation:
  * Strips file extensions (.pdf, .webp, .png, etc.), replaces hyphens and underscores with spaces,
  * and capitalizes each word.

@@ -18,7 +18,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { askReportQuestionAction } from "../actions";
-import { formatReportName, formatDate } from "@/lib/utils";
+import { formatReportName, formatDate, formatTime } from "@/lib/utils";
+import { Select } from "@/components/ui/select";
+import { MarkdownRenderer } from "@/components/shared/markdown-renderer";
 
 export interface CopilotReportItem {
   id: string;
@@ -46,53 +48,6 @@ interface ChatMessage {
   referenceCitation?: string;
 }
 
-function FormattedChatText({ content }: { content: string }) {
-  const paragraphs = content.split("\n");
-
-  return (
-    <div className="space-y-1.5 leading-relaxed text-foreground">
-      {paragraphs.map((para, pIdx) => {
-        const trimmed = para.trim();
-        if (!trimmed) return null;
-
-        const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("* ");
-        const isNumbered = /^\d+\.\s/.test(trimmed);
-        const cleanText = isBullet
-          ? trimmed.slice(2)
-          : isNumbered
-          ? trimmed.replace(/^\d+\.\s*/, "")
-          : trimmed;
-
-        const parts = cleanText.split(/(\*\*[^*]+\*\*)/g);
-        const renderedText = parts.map((part, i) => {
-          if (part.startsWith("**") && part.endsWith("**")) {
-            return (
-              <strong key={i} className="font-bold text-foreground">
-                {part.slice(2, -2)}
-              </strong>
-            );
-          }
-          return part;
-        });
-
-        if (isBullet || isNumbered) {
-          return (
-            <div key={pIdx} className="flex items-start gap-1.5 pl-1 text-foreground">
-              <span className="text-primary font-bold mt-0.5">•</span>
-              <span>{renderedText}</span>
-            </div>
-          );
-        }
-
-        return (
-          <p key={pIdx} className="text-foreground">
-            {renderedText}
-          </p>
-        );
-      })}
-    </div>
-  );
-}
 
 export function CopilotModal({
   isOpen,
@@ -101,23 +56,24 @@ export function CopilotModal({
   defaultReportId,
 }: CopilotModalProps) {
   const [selectedReportId, setSelectedReportId] = useState<string>(
-    defaultReportId || (reports.length > 0 ? reports[0].id : "")
+    () => defaultReportId || (reports.length > 0 ? reports[0].id : "")
   );
+
+  // Sync state if defaultReportId prop changes externally
+  const [prevDefaultReportId, setPrevDefaultReportId] = useState(defaultReportId);
+  if (defaultReportId !== prevDefaultReportId) {
+    setPrevDefaultReportId(defaultReportId);
+    if (defaultReportId) {
+      setSelectedReportId(defaultReportId);
+    }
+  }
+
   const [input, setInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef(0);
-
-  // Sync default report id if prop changes
-  useEffect(() => {
-    if (defaultReportId) {
-      setSelectedReportId(defaultReportId);
-    } else if (reports.length > 0 && !selectedReportId) {
-      setSelectedReportId(reports[0].id);
-    }
-  }, [defaultReportId, reports, selectedReportId]);
 
   const activeReport = reports.find((r) => r.id === selectedReportId) || reports[0];
   const activeReportName = activeReport ? formatReportName(activeReport.filename) : "Report";
@@ -127,43 +83,48 @@ export function CopilotModal({
       {
         id: "welcome",
         role: "assistant",
-        content: `Hello! I'm your Clinical Copilot. Select any analyzed laboratory report from the selector above, and I can explain diagnostic findings, highlight out-of-range biomarkers, suggest questions for your physician, and provide evidence-based guidance.`,
+        content: `Hello! I'm your MedSimplify assistant. Pick any medical report from the selector above, and I can explain what your results mean in simple everyday words, point out any tests that need attention, and suggest questions for your doctor.`,
         timestamp: "Just now",
         actionItems: [
-          "Select the lab report you want to consult on.",
-          "Ask specific questions about blood markers, organs, or test intervals.",
-          "Prepare key discussion prompts for your next doctor appointment.",
+          "Pick a medical report to review.",
+          "Ask questions about any specific test or what it means for your body.",
+          "Get simple questions ready for your next doctor appointment.",
         ],
-        referenceCitation: "ADA & EASL Evidence-Based Clinical Protocols 2026",
+        referenceCitation: "Educational Health Guide",
       },
     ];
   });
 
-  // When selected report changes, reset chat or add a context note
-  useEffect(() => {
-    if (!activeReport) return;
-    const name = formatReportName(activeReport.filename);
-    const flags = activeReport.abnormalCount;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `switch-${activeReport.id}-${Date.now()}`,
-        role: "assistant",
-        content: `Switched context to **${name}** (${
-          flags > 0 ? `${flags} flagged biomarkers` : "all normal"
-        }). How can I assist you with this report?`,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        referenceCitation: "Active Report Context Loaded",
-      },
-    ]);
-  }, [selectedReportId]);
-
-  useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const handleSelectReport = (newId: string) => {
+    if (newId === selectedReportId) return;
+    setSelectedReportId(newId);
+    const target = reports.find((r) => r.id === newId);
+    if (target) {
+      const name = formatReportName(target.filename);
+      const flags = target.abnormalCount;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `switch-${target.id}-${Date.now()}`,
+          role: "assistant",
+          content: `Switched context to **${name}** (${
+            flags > 0 ? `${flags} results outside usual range` : "all within expected ranges"
+          }). How can I help you understand this report?`,
+          timestamp: formatTime(),
+          referenceCitation: "Active Report Loaded",
+        },
+      ]);
     }
-  }, [messages, isOpen]);
+  };
+
+  useEffect(() => {
+    if (isOpen && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages, isOpen, isSubmitting]);
 
   if (!isOpen) return null;
 
@@ -178,7 +139,7 @@ export function CopilotModal({
 
     setErrorMsg(null);
     counterRef.current += 1;
-    const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const currentTime = formatTime();
 
     const userMsg: ChatMessage = {
       id: `user-${counterRef.current}-${Date.now()}`,
@@ -203,8 +164,8 @@ export function CopilotModal({
         id: `bot-${counterRef.current}-${Date.now()}`,
         role: "assistant",
         content: result.data.answer,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        referenceCitation: "ADA / EASL Clinical Protocols 2026",
+        timestamp: formatTime(),
+        referenceCitation: "MedSimplify Report Guide",
       };
 
       setMessages((prev) => [...prev, botMsg]);
@@ -277,7 +238,7 @@ export function CopilotModal({
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Select any lab report to review clinical interpretations and consult prompts
+                Select any lab report to get simple explanations and helpful questions
               </p>
             </div>
           </div>
@@ -297,17 +258,20 @@ export function CopilotModal({
             <FileText className="w-4 h-4 text-primary shrink-0" />
             <span className="text-xs font-semibold text-foreground shrink-0">Active Report:</span>
             {reports.length > 0 ? (
-              <select
-                value={selectedReportId}
-                onChange={(e) => setSelectedReportId(e.target.value)}
-                className="flex-1 text-xs font-semibold rounded-xl border border-border bg-muted/30 px-3 py-1.5 text-foreground focus:outline-hidden focus:border-primary truncate cursor-pointer"
-              >
-                {reports.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {formatReportName(r.filename)} ({r.abnormalCount > 0 ? `${r.abnormalCount} flags` : "Normal"}) • {formatDate(r.uploadedAt)}
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1 min-w-0">
+                <Select
+                  value={selectedReportId}
+                  onChange={(e) => handleSelectReport(e.target.value)}
+                  selectSize="sm"
+                  className="font-semibold text-xs bg-muted/30 hover:bg-muted/50 border-border focus:border-primary cursor-pointer shadow-2xs"
+                >
+                  {reports.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {formatReportName(r.filename)} ({r.abnormalCount > 0 ? `${r.abnormalCount} flags` : "Normal"}) • {formatDate(r.uploadedAt)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
             ) : (
               <span className="text-xs text-muted-foreground italic">No reports found</span>
             )}
@@ -345,7 +309,7 @@ export function CopilotModal({
               Ask:
             </span>
             <button
-              onClick={() => handleSend("Explain my flagged results in plain terms")}
+              onClick={() => handleSend("Explain my flagged results in simple everyday words")}
               disabled={isSubmitting}
               className="px-2.5 py-1 bg-card hover:bg-primary/10 text-foreground border border-border hover:border-primary/40 rounded-lg whitespace-nowrap cursor-pointer transition-colors"
             >
@@ -359,17 +323,17 @@ export function CopilotModal({
               &ldquo;Top questions for doctor&rdquo;
             </button>
             <button
-              onClick={() => handleSend("What lifestyle or dietary changes support improving this panel?")}
+              onClick={() => handleSend("What simple lifestyle habits or healthy foods could support these results?")}
               disabled={isSubmitting}
               className="px-2.5 py-1 bg-card hover:bg-primary/10 text-foreground border border-border hover:border-primary/40 rounded-lg whitespace-nowrap cursor-pointer transition-colors"
             >
-              &ldquo;Diet &amp; lifestyle habits&rdquo;
+              &ldquo;Healthy daily habits&rdquo;
             </button>
           </div>
         )}
 
         {/* Chat Conversation Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           {reports.length === 0 ? (
             <div className="p-8 text-center space-y-3 my-auto">
               <Upload className="w-8 h-8 text-muted-foreground mx-auto" />
@@ -413,14 +377,14 @@ export function CopilotModal({
                   </div>
                 ) : (
                   <div className="bg-muted/25 border border-border rounded-2xl rounded-tl-none p-3.5 text-foreground leading-relaxed space-y-2.5 max-w-[90%] shadow-2xs">
-                    <FormattedChatText content={m.content} />
+                    <MarkdownRenderer content={m.content} />
 
                     {/* Action Items Box */}
                     {m.actionItems && m.actionItems.length > 0 && (
                       <div className="bg-card rounded-xl p-3 border border-border text-[11px] space-y-1.5 shadow-2xs">
                         <div className="font-bold text-foreground flex items-center gap-1.5">
                           <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                          <span>Actionable Considerations:</span>
+                          <span>Helpful Next Steps:</span>
                         </div>
                         <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
                           {m.actionItems.map((item, i) => (
@@ -457,7 +421,7 @@ export function CopilotModal({
               </div>
               <div className="bg-muted/30 border border-border rounded-2xl rounded-tl-none px-3.5 py-2.5 text-foreground text-xs flex items-center space-x-2">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                <span>Analyzing clinical protocols for {activeReportName}...</span>
+                <span>Looking up a clear explanation for {activeReportName}...</span>
               </div>
             </div>
           )}
@@ -467,8 +431,6 @@ export function CopilotModal({
               {errorMsg}
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Chat Input Bar */}
@@ -489,7 +451,7 @@ export function CopilotModal({
                   handleSend(input);
                 }
               }}
-              placeholder={`Ask a question about ${activeReportName}...`}
+              placeholder="Ask any question about your medical report in plain English..."
               rows={2}
               className="w-full text-xs rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary p-2.5 resize-none bg-muted/20 text-foreground placeholder:text-muted-foreground focus:outline-hidden transition-colors"
               disabled={isSubmitting || reports.length === 0}

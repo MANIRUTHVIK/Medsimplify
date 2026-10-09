@@ -61,40 +61,36 @@ export function RangeDistribution({
   };
 
   return (
-    <section className="bg-card rounded-2xl p-6 border border-border shadow-xs transition-all">
+    <section className="bg-card rounded-xl p-4 md:p-5 border border-border shadow-xs transition-all">
       {/* Header & Legend */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-3">
-        <div>
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shadow-xs">
-              <TrendingUp className="w-4 h-4 text-primary" />
-            </div>
-            <h2 className="font-bold text-foreground text-base tracking-tight">
-              Clinical Range Distribution & Midpoint Calibration
-            </h2>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <TrendingUp className="w-3.5 h-3.5 text-primary" />
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Biomarkers normalized to physiological standard ranges (Optimal target zone in emerald)
-          </p>
+          <div>
+            <h2 className="text-sm font-bold text-foreground tracking-tight">Range Distribution</h2>
+            <p className="text-[10px] text-muted-foreground">Your results compared to usual healthy ranges</p>
+          </div>
         </div>
 
         {/* Visual Legend */}
         <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl border border-border">
           <span className="flex items-center">
             <span className="w-2.5 h-2.5 rounded-xs bg-amber-400 mr-1.5" />
-            <span className="text-[11px] text-muted-foreground">Low Band</span>
+            <span className="text-[11px] text-muted-foreground">Lower than usual</span>
           </span>
           <span className="flex items-center">
             <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 mr-1.5" />
-            <span className="text-[11px] text-muted-foreground">Normal Zone (Optimal)</span>
+            <span className="text-[11px] text-muted-foreground">Expected range</span>
           </span>
           <span className="flex items-center">
             <span className="w-2.5 h-2.5 rounded-xs bg-rose-500 mr-1.5" />
-            <span className="text-[11px] text-muted-foreground">High Band</span>
+            <span className="text-[11px] text-muted-foreground">Higher than usual</span>
           </span>
           <span className="flex items-center">
             <span className="w-2.5 h-2.5 rounded-full border-2 border-foreground bg-white mr-1.5" />
-            <span className="text-[11px] text-muted-foreground">Patient Value</span>
+            <span className="text-[11px] text-muted-foreground">Your result</span>
           </span>
         </div>
       </div>
@@ -131,10 +127,10 @@ export function RangeDistribution({
                   <span
                     className={`font-extrabold text-sm ${
                       isHigh
-                        ? "text-rose-600"
+                        ? "text-status-error-strong"
                         : isLow
-                        ? "text-amber-600"
-                        : "text-emerald-600"
+                        ? "text-status-warning-strong"
+                        : "text-status-success-strong"
                     }`}
                   >
                     {item.value} {item.unit || ""}
@@ -143,40 +139,40 @@ export function RangeDistribution({
                     <span
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${
                         isHigh
-                          ? "bg-rose-50 text-rose-700 border-rose-200"
-                          : "bg-amber-50 text-amber-700 border-amber-200"
+                          ? "bg-status-error-soft text-status-error-strong border-status-error-border"
+                          : "bg-status-warning-soft text-status-warning-strong border-status-warning-border"
                       }`}
                     >
-                      {item.deviation > 0 ? `+${item.deviation}% Above Target` : `${item.deviation}% Below Normal`}
+                      {item.deviation > 0 ? `+${item.deviation}%` : `${item.deviation}%`}
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Optimal Range
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-status-success-soft text-status-success-strong border border-status-success-border">
+                      Optimal
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Horizontal Range Corridor */}
-              <div className="relative w-full h-3.5 bg-gray-100 rounded-full overflow-hidden flex shadow-2xs">
-                <div className="w-[22%] bg-amber-200/90 h-full" title="Below Normal Range" />
-                <div className="w-[53%] bg-emerald-300 h-full" title="Optimal Reference Corridor" />
-                <div className="w-[25%] bg-rose-200 h-full" title="Above Normal Range" />
+              <div className="relative w-full h-3 bg-muted/50 rounded-full overflow-hidden flex shadow-2xs">
+                <div className="w-[22%] bg-status-warning-soft h-full" title="Below Normal Range" />
+                <div className="w-[53%] bg-status-success-soft h-full" title="Optimal Reference Corridor" />
+                <div className="w-[25%] bg-status-error-soft h-full" title="Above Normal Range" />
               </div>
 
               {/* Marker Pin */}
               <div className="relative w-full h-2">
                 <div
-                  className="absolute -top-3.5 transform -translate-x-1/2 flex flex-col items-center transition-all duration-300 group-hover:scale-125"
+                  className="absolute -top-3 transform -translate-x-1/2 flex flex-col items-center transition-all duration-300 group-hover:scale-125"
                   style={{ left: `${pinPos}%` }}
                 >
                   <div
-                    className={`w-3.5 h-3.5 rounded-full border-2 border-white shadow-xs ${
+                    className={`w-3 h-3 rounded-full border-2 border-white shadow-xs ${
                       isHigh
-                        ? "bg-rose-600 ring-2 ring-rose-200"
+                        ? "bg-status-error ring-2 ring-status-error-border"
                         : isLow
-                        ? "bg-amber-600 ring-2 ring-amber-200"
-                        : "bg-emerald-600 ring-2 ring-emerald-200"
+                        ? "bg-status-warning ring-2 ring-status-warning-border"
+                        : "bg-status-success ring-2 ring-status-success-border"
                     }`}
                   />
                 </div>
@@ -186,8 +182,8 @@ export function RangeDistribution({
         })}
       </div>
 
-      <p className="text-[11px] text-muted-foreground mt-3 text-center italic">
-        Pins indicate patient measured values. Green zones denote laboratory-validated optimal reference corridors.
+      <p className="text-[10px] text-muted-foreground mt-2 text-center">
+        Click any row to query that biomarker in the Clinical Copilot.
       </p>
     </section>
   );

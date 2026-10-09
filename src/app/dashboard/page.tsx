@@ -26,7 +26,8 @@ export default async function DashboardPage() {
   const isProfileComplete = Boolean(user.gender && user.dateOfBirth);
 
   return (
-    <div className="space-y-6">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+    <div className="space-y-6 w-full max-w-full">
       {/* Patient Header Card */}
       <div className="bg-card border border-border rounded-[var(--radius)] p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -97,6 +98,7 @@ export default async function DashboardPage() {
 
       {/* Historical Reports List */}
       <ReportsList reports={reports} />
+    </div>
     </div>
   );
 }

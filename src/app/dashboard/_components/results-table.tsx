@@ -260,7 +260,7 @@ export function ResultsTable({
                           )}
                           {isLow && (
                             <span className="text-[10px] font-bold text-status-warning-strong bg-status-warning-soft border border-status-warning-border px-1.5 py-0.2 rounded">
-                              Deficient
+                              Low
                             </span>
                           )}
                         </div>
@@ -310,7 +310,7 @@ export function ResultsTable({
                             : "Standard Target"}
                         </div>
                         <span className="text-[10px] text-muted-foreground block mt-0.5">
-                          {item.isFallbackRange ? "Clinical Age/Gender Standard" : "Laboratory Reference"}
+                          {item.isFallbackRange ? "Standard range for age/gender" : "Lab standard range"}
                         </span>
                       </td>
 
@@ -383,22 +383,22 @@ export function ResultsTable({
                           <div className="bg-card p-3.5 rounded-xl border border-border text-xs space-y-2">
                             <div className="font-bold text-foreground flex items-center gap-1.5">
                               <Sparkles className="w-3.5 h-3.5 text-primary" />
-                              <span>Clinical Context & Actionable Insights for {item.test}</span>
+                              <span>What {item.test} measures and next steps</span>
                             </div>
                             <p className="text-muted-foreground leading-relaxed">
                               {item.interpretation ||
-                                "This parameter measures standard physiological concentrations. Abnormalities may point toward metabolic, nutritional, or systemic changes that should be discussed with your physician."}
+                                "This test measures typical levels in your body. If your result is outside the expected range, talk with your doctor about what it means."}
                             </p>
                             <div className="pt-2 flex flex-wrap items-center gap-2">
                               <button
                                 onClick={() =>
                                   onAskAboutTest(
-                                    `What lifestyle or dietary habits help normalize ${item.test}?`
+                                    `What simple steps or daily habits can help with my ${item.test} level?`
                                   )
                                 }
                                 className="text-[11px] px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/25 font-semibold transition-colors cursor-pointer"
                               >
-                                How can I improve my {item.test} level?
+                                What can help with my {item.test} level?
                               </button>
                               <button
                                 onClick={() =>
@@ -408,7 +408,7 @@ export function ResultsTable({
                                 }
                                 className="text-[11px] px-2.5 py-1 rounded-lg bg-card border border-border hover:bg-muted text-foreground font-semibold transition-colors cursor-pointer"
                               >
-                                Generate Doctor Questions for {item.test}
+                                Questions to ask my doctor about {item.test}
                               </button>
                             </div>
                           </div>

@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { updateUserSettingsAction } from "../actions";
 import { calculateAge } from "@/lib/utils";
 import { Check, Loader2, AlertCircle } from "lucide-react";
@@ -149,24 +150,19 @@ export function SettingsForm({ initialValues }: SettingsFormProps) {
         </div>
 
         {/* Biological Gender */}
-        <div>
-          <label className="block text-xs font-semibold text-secondary mb-1.5">
-            Biological Gender
-          </label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full text-xs bg-card border border-border rounded-[var(--radius)] px-3.5 py-2.5 text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
-          >
-            <option value="">Select Biological Gender</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other / Prefer not to say</option>
-          </select>
-          <span className="text-[10px] text-muted-foreground mt-1 block">
-            Used to calibrate sex-stratified diagnostic reference intervals.
-          </span>
-        </div>
+        <Select
+          label="Biological Gender"
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          selectSize="md"
+          className="text-xs"
+          helperText="Used to calibrate sex-stratified diagnostic reference intervals."
+        >
+          <option value="">Select Biological Gender</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other / Prefer not to say</option>
+        </Select>
 
         {/* Date of Birth */}
         <div>

@@ -18,6 +18,7 @@ import {
 import { formatDate, formatReportName } from "@/lib/utils";
 import { deleteReportAction } from "../actions";
 import { UploadQueue } from "../_components/upload-queue";
+import { Select } from "@/components/ui/select";
 
 interface ReportSummary {
   id: string;
@@ -181,18 +182,21 @@ export function ReportsView({ reports }: ReportsViewProps) {
 
           {/* Sort Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-xs font-semibold text-muted-foreground">Sort:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="text-xs font-semibold rounded-xl border border-border bg-card px-2.5 py-2 text-foreground focus:outline-hidden focus:border-primary cursor-pointer"
-            >
-              <option value="newest">Newest Uploaded</option>
-              <option value="oldest">Oldest Uploaded</option>
-              <option value="flagged">Most Flagged Items</option>
-              <option value="metrics">Most Parameters</option>
-            </select>
+            <span className="text-xs font-semibold text-muted-foreground shrink-0">Sort:</span>
+            <div className="w-44 sm:w-48">
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                selectSize="sm"
+                icon={<SlidersHorizontal className="w-3.5 h-3.5" />}
+                className="font-semibold text-xs bg-card hover:bg-muted/40 shadow-2xs"
+              >
+                <option value="newest">Newest Uploaded</option>
+                <option value="oldest">Oldest Uploaded</option>
+                <option value="flagged">Most Flagged Items</option>
+                <option value="metrics">Most Parameters</option>
+              </Select>
+            </div>
           </div>
         </div>
 

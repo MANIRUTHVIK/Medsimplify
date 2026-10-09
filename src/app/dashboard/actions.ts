@@ -342,6 +342,7 @@ export async function askReportQuestionAction(
         status: r.status,
         deviation: r.deviation,
         isFallbackRange: r.isFallbackRange,
+        interpretation: r.interpretation,
       })),
     };
 
@@ -358,7 +359,7 @@ export async function askReportQuestionAction(
         { role: "user" as const, content: c.question },
         { role: "assistant" as const, content: c.answer },
       ])
-      .slice(-15);
+      .slice(-14);
 
     const aiRes = await askPatientQAAI(question, reportContext, history);
 

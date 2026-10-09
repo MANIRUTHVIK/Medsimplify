@@ -111,11 +111,32 @@ export async function askGeminiQA(
   ].filter(Boolean) as string[];
 
   const contextText = getQAContextPrompt(reportContext);
-  const recentHistory = history.slice(-15);
-  const geminiHistory = recentHistory.map((h) => ({
+  const recentHistory = history.slice(-14);
+  const rawGeminiHistory = recentHistory.map((h) => ({
     role: h.role === "assistant" ? ("model" as const) : ("user" as const),
     parts: [{ text: h.content }],
   }));
+
+  // Gemini strictly requires the first turn to be 'user'
+  while (rawGeminiHistory.length > 0 && rawGeminiHistory[0].role !== "user") {
+    rawGeminiHistory.shift();
+  }
+
+  // Ensure alternating roles: user -> model -> user -> model
+  const geminiHistory: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }> = [];
+  for (const item of rawGeminiHistory) {
+    if (!item.parts[0]?.text?.trim()) continue;
+    if (geminiHistory.length === 0) {
+      if (item.role === "user") {
+        geminiHistory.push(item);
+      }
+    } else {
+      const prev = geminiHistory[geminiHistory.length - 1];
+      if (prev.role !== item.role) {
+        geminiHistory.push(item);
+      }
+    }
+  }
 
   let lastError: unknown;
   for (const modelName of candidateModels) {

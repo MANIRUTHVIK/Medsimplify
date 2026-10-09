@@ -18,12 +18,10 @@ export default async function DashboardLayout({
   const reports = reportsRes.success && reportsRes.data ? reportsRes.data : [];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground overflow-x-hidden">
+    <div className="h-screen flex flex-col md:flex-row bg-background text-foreground overflow-hidden">
       <DashboardSidebar user={user} reports={reports} />
-      <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
-        <div className="w-full">
-          {children}
-        </div>
+      <main className="flex-1 min-w-0 overflow-hidden flex flex-col">
+        {children}
       </main>
     </div>
   );

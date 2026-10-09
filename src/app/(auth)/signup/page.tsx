@@ -7,6 +7,7 @@ import { signupAction } from "./actions";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
@@ -170,20 +171,16 @@ export default function SignupPage() {
 
           {/* Biological Context for Reference Ranges */}
           <div className="grid grid-cols-2 gap-3 pt-1">
-            <div>
-              <label className="block text-xs font-semibold text-secondary mb-1.5">
-                Gender (for lab ranges)
-              </label>
-              <select
-                value={formData.gender}
-                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-card border border-border rounded-[var(--radius)] text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
-              >
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
+            <Select
+              label="Gender (for lab ranges)"
+              value={formData.gender}
+              onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+              selectSize="md"
+            >
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+            </Select>
 
             <div>
               <label className="block text-xs font-semibold text-secondary mb-1.5">

@@ -11,6 +11,17 @@ export async function analyzeReportAI(input: {
   mimeType?: string;
   patientContext?: { gender?: string | null; age?: number | null };
 }): Promise<RawAnalysisResponse> {
+  const provider = (process.env.LLM_PROVIDER || "gemini").toLowerCase();
+
+  if (provider === "groq" && input.text && input.text.length > 50) {
+    try {
+      return await extractReportWithGroq(input.text, input.patientContext);
+    } catch (groqErr) {
+      console.warn("Groq extraction failed, falling back to Gemini:", groqErr);
+      return await extractReportWithGemini(input);
+    }
+  }
+
   try {
     return await extractReportWithGemini(input);
   } catch (geminiErr) {
@@ -23,14 +34,27 @@ export async function analyzeReportAI(input: {
 }
 
 /**
- * Handles grounded patient Q&A: Groq as primary, Gemini as automatic failover,
- * retaining the last 15 messages of conversation history.
+ * Handles grounded patient Q&A based on configured LLM_PROVIDER (defaults to Gemini).
+ * Automatic failover between Gemini and Groq if either fails.
  */
 export async function askPatientQAAI(
   question: string,
   reportContext: unknown,
   history: ChatHistoryMessage[] = []
 ): Promise<{ answer: string; provider: "groq" | "gemini" }> {
+  const provider = (process.env.LLM_PROVIDER || "gemini").toLowerCase();
+
+  if (provider === "gemini") {
+    try {
+      const answer = await askGeminiQA(question, reportContext, history);
+      return { answer, provider: "gemini" };
+    } catch (geminiErr) {
+      console.warn("Gemini Q&A failed, falling back to Groq:", geminiErr);
+      const answer = await askGroqQA(question, reportContext, history);
+      return { answer, provider: "groq" };
+    }
+  }
+
   try {
     const answer = await askGroqQA(question, reportContext, history);
     return { answer, provider: "groq" };

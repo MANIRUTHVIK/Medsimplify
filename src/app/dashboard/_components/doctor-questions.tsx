@@ -33,39 +33,35 @@ export function DoctorQuestions({ questions, onAskQuestion }: DoctorQuestionsPro
   const getQuestionCategory = (q: string, idx: number) => {
     const lower = q.toLowerCase();
     if (lower.includes("glucose") || lower.includes("hba1c") || lower.includes("diabetes")) {
-      return { tag: "Glycemic Management", color: "bg-rose-50 text-rose-700 border-rose-200" };
+      return { tag: "Blood Sugar", color: "bg-rose-50 text-rose-700 border-rose-200" };
     }
     if (lower.includes("bilirubin") || lower.includes("liver") || lower.includes("hepatic")) {
-      return { tag: "Hepatic Follow-up", color: "bg-rose-50 text-rose-700 border-rose-200" };
+      return { tag: "Liver Health", color: "bg-rose-50 text-rose-700 border-rose-200" };
     }
     if (lower.includes("sodium") || lower.includes("electrolyte") || lower.includes("fluid")) {
-      return { tag: "Electrolyte Watch", color: "bg-amber-50 text-amber-700 border-amber-200" };
+      return { tag: "Electrolytes", color: "bg-amber-50 text-amber-700 border-amber-200" };
     }
     if (lower.includes("creatinine") || lower.includes("renal") || lower.includes("kidney")) {
-      return { tag: "Renal Routine", color: "bg-amber-50 text-amber-700 border-amber-200" };
+      return { tag: "Kidney Health", color: "bg-amber-50 text-amber-700 border-amber-200" };
     }
     if (lower.includes("cholesterol") || lower.includes("lipid") || lower.includes("cardiac")) {
-      return { tag: "Cardiovascular Risk", color: "bg-amber-50 text-amber-700 border-amber-200" };
+      return { tag: "Cholesterol & Heart", color: "bg-amber-50 text-amber-700 border-amber-200" };
     }
     return idx === 0
-      ? { tag: "High Priority", color: "bg-rose-50 text-rose-700 border-rose-200" }
-      : { tag: "Clinical Consultation", color: "bg-primary/10 text-primary border-primary/25" };
+      ? { tag: "Needs Attention", color: "bg-rose-50 text-rose-700 border-rose-200" }
+      : { tag: "General Question", color: "bg-primary/10 text-primary border-primary/25" };
   };
 
   return (
-    <section className="bg-card rounded-2xl p-5 border border-border shadow-xs">
+    <section className="bg-card rounded-xl p-4 md:p-5 border border-border shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border gap-2">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shadow-xs">
-            <Stethoscope className="w-4 h-4 text-primary" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Stethoscope className="w-3.5 h-3.5 text-primary" />
           </div>
           <div>
-            <h2 className="font-bold text-foreground text-base tracking-tight">
-              Questions to Discuss with Your Doctor
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Structured consultation prompts to guide your next clinical appointment
-            </p>
+            <h2 className="text-sm font-bold text-foreground tracking-tight">Questions for Your Doctor</h2>
+            <p className="text-[10px] text-muted-foreground">Helpful questions to ask at your next appointment</p>
           </div>
         </div>
 
@@ -105,7 +101,7 @@ export function DoctorQuestions({ questions, onAskQuestion }: DoctorQuestionsPro
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs font-bold text-foreground">
-                    Consultation Prompt #{idx + 1}
+                    Question #{idx + 1}
                   </span>
                   <span
                     className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded border ${category.color}`}
@@ -178,7 +174,7 @@ export function DoctorQuestions({ questions, onAskQuestion }: DoctorQuestionsPro
                         className="hover:text-primary flex items-center gap-1 font-semibold text-primary cursor-pointer transition-colors"
                       >
                         <Sparkles className="w-3 h-3 text-primary" />
-                        <span>Ask Copilot Now</span>
+                        <span>Ask Copilot about this</span>
                       </button>
                     </>
                   )}

@@ -17,6 +17,9 @@ import {
   UploadCloud,
   Printer,
   Sparkles,
+  TrendingUp,
+  TrendingDown,
+  ChevronRight,
 } from "lucide-react";
 import { ReportAnalysisData } from "@/types";
 import { RangeDistribution } from "../_components/range-distribution";
@@ -65,7 +68,7 @@ export function ReportView({ report, chats }: ReportViewProps) {
   const isOptimal = abnormal === 0;
   const isModerate = abnormal > 0 && abnormal <= 3;
 
-  // Find abnormal metrics for focal badges
+  // Find abnormal metrics
   const highItems = report.results.filter((r) => r.status === "High");
   const lowItems = report.results.filter((r) => r.status === "Low");
   const abnormalItems = report.results.filter(
@@ -100,13 +103,11 @@ export function ReportView({ report, chats }: ReportViewProps) {
     );
   };
 
-  // Text to Speech for Clinical Synopsis
   const toggleAudio = () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       alert("Audio speech synthesis is not supported in this browser.");
       return;
     }
-
     if (isPlayingAudio) {
       window.speechSynthesis.cancel();
       setIsPlayingAudio(false);
@@ -122,384 +123,274 @@ export function ReportView({ report, chats }: ReportViewProps) {
     }
   };
 
-  // Save prep sheet handler
   const handleSavePrep = async () => {
-    const text = `MEDSIMPLIFY CLINICAL REPORT SUMMARY
-Report: ${displayName}
-Date: ${formatDate(report.uploadedAt)}
-Total Biomarkers: ${total} (Normal: ${normal}, High: ${high}, Low: ${low})
-
-CLINICAL SYNOPSIS:
-${report.summary}
-
-KEY DOCTOR QUESTIONS:
-${report.doctorQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
-
+    const text = `MEDSIMPLIFY REPORT SUMMARY\nReport: ${displayName}\nDate: ${formatDate(report.uploadedAt)}\nTotal Tests: ${total} (${normal} within range, ${high} higher, ${low} lower)\n\nREPORT SUMMARY:\n${report.summary}\n\nQUESTIONS FOR YOUR DOCTOR:\n${report.doctorQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
     try {
       await navigator.clipboard.writeText(text);
       setSavedPrep(true);
       setTimeout(() => setSavedPrep(false), 2500);
     } catch {
-      // Fallback
+      // ignore
     }
   };
 
+  /* ─── Triage colour tokens ─── */
+  const triageBg = isOptimal
+    ? "bg-status-success-soft border-status-success-border text-status-success-strong"
+    : isModerate
+      ? "bg-status-warning-soft border-status-warning-border text-status-warning-strong"
+      : "bg-status-error-soft border-status-error-border text-status-error-strong";
+
+  const triageLabel = isOptimal
+    ? "Optimal"
+    : isModerate
+      ? "Needs Attention"
+      : "Priority Alert";
+
   return (
-    <div className="space-y-6">
-      {/* ========================================================================= */}
-      {/* TOP CLINICAL ACTION BAR                                                   */}
-      {/* ========================================================================= */}
-      <div className="bg-card border border-border rounded-2xl p-4 md:px-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left: Report Title & Verification Status */}
-        <div className="flex items-center space-x-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shadow-xs shrink-0">
-            <Activity className="w-5 h-5 text-primary" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-              <span className="text-lg font-bold text-foreground tracking-tight truncate">
-                {displayName}
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Verified &amp; Calibrated
-              </span>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* SLIM TOP ACTION BAR                                                     */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="bg-card/90 backdrop-blur-md border-b border-border px-5 py-3 flex items-center justify-between gap-4 sticky top-0 z-20 shrink-0">
+        {/* Left: breadcrumb + title */}
+        <div className="flex items-center gap-3 min-w-0">
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 shrink-0" />
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+              <Activity className="w-3.5 h-3.5 text-primary" />
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              Analyzed on {formatDate(report.uploadedAt)} • ID #{report.reportId.slice(0, 8).toUpperCase()}
-            </p>
+            <span className="text-sm font-bold text-foreground truncate max-w-[180px] sm:max-w-xs">
+              {displayName}
+            </span>
+            <span className={`hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full border ${triageBg}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isOptimal ? "bg-status-success" : isModerate ? "bg-status-warning" : "bg-status-error"} animate-pulse`} />
+              {triageLabel}
+            </span>
           </div>
         </div>
 
-        {/* Right: Quick Actions */}
-        <div className="flex items-center flex-wrap gap-2 shrink-0">
+        {/* Right: actions */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="hidden md:block text-[11px] text-muted-foreground">
+            {formatDate(report.uploadedAt)} · ID #{report.reportId.slice(0, 8).toUpperCase()}
+          </span>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted/40 text-foreground text-xs font-semibold shadow-xs transition-all cursor-pointer"
-            title="Print or Save PDF Summary"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-foreground text-xs font-medium transition-all cursor-pointer"
+            title="Export PDF"
           >
-            <Printer className="w-3.5 h-3.5 text-foreground" />
-            <span className="hidden sm:inline">Export PDF Summary</span>
+            <Printer className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
           </button>
-
           <Link
             href="/dashboard"
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold transition-all"
           >
             <UploadCloud className="w-3.5 h-3.5" />
             <span>Upload New</span>
           </Link>
-
           <button
             onClick={handleDeleteReport}
             disabled={isDeleting}
-            className="p-2 rounded-xl border border-status-error/30 hover:bg-status-error-soft text-status-error-strong text-xs font-medium transition-all shadow-xs cursor-pointer disabled:opacity-50"
-            title="Delete this lab report run"
+            className="p-1.5 rounded-lg border border-status-error/30 hover:bg-status-error-soft text-status-error-strong transition-all cursor-pointer disabled:opacity-50"
+            title="Delete report"
           >
             {isDeleting ? (
-              <Loader2 className="w-4 h-4 animate-spin text-status-error" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             )}
           </button>
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* EXACT STITCH 3:4 (75%) LEFT & 1:4 (25%) RIGHT COPILOT SPLIT LAYOUT       */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
-        {/* ===================================================================== */}
-        {/* LEFT 75% DASHBOARD COLUMN (3 of 4 cols on XL)                         */}
-        {/* ===================================================================== */}
-        <div className="xl:col-span-3 space-y-6">
-          {/* 1. EXECUTIVE HEALTH SCORE / TRIAGE STRIP */}
-          <section className="bg-card rounded-2xl p-5 md:p-6 border border-border shadow-xs">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-5 border-b border-border">
-              {/* Stability Meter */}
-              <div className="flex items-center space-x-4">
-                <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* MAIN SPLIT LAYOUT: 3/4 Analysis | 1/4 Chatbot                          */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="flex flex-col xl:flex-row gap-0 flex-1 min-h-0 overflow-hidden">
+
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* LEFT — ANALYSIS COLUMN (scrollable)                                 */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-5 lg:p-6 pb-10 space-y-5">
+
+          {/* ── 1. SCORE STRIP ── */}
+          <section className="bg-card rounded-xl border border-border p-4 md:p-5 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+
+              {/* Ring + score */}
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="relative w-14 h-14 shrink-0">
+                  <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
                     <path
-                      className="text-muted/60"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
-                      stroke="currentColor"
+                      stroke="var(--border)"
                       strokeWidth="3.5"
                     />
                     <path
-                      className={
-                        isOptimal
-                          ? "text-emerald-500"
-                          : isModerate
-                          ? "text-amber-500"
-                          : "text-rose-500"
-                      }
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
-                      stroke="currentColor"
+                      stroke={isOptimal ? "var(--status-success)" : isModerate ? "var(--status-warning)" : "var(--status-error)"}
                       strokeDasharray={`${safePercentage}, 100`}
                       strokeLinecap="round"
                       strokeWidth="3.5"
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs font-extrabold text-foreground">
-                      {safePercentage}%
-                    </span>
-                    <span className="text-[8px] text-muted-foreground uppercase font-bold">
-                      Safe
-                    </span>
+                    <span className="text-xs font-extrabold text-foreground leading-none">{safePercentage}%</span>
+                    <span className="text-[8px] text-muted-foreground uppercase font-bold leading-none mt-0.5">Safe</span>
                   </div>
                 </div>
 
+                {/* Title block */}
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${
-                        isOptimal
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : isModerate
-                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                          : "bg-rose-50 text-rose-700 border-rose-200"
-                      }`}
-                    >
-                      {isOptimal
-                        ? "Optimal Health Stability"
-                        : isModerate
-                        ? "Moderate Attention Required"
-                        : "Priority Clinical Attention"}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${triageBg}`}>
+                      {triageLabel}
                     </span>
-                    <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs text-muted-foreground font-medium">
-                      Diagnostic Confidence 99.4%
-                    </span>
+                    <span className="text-[10px] text-muted-foreground font-medium hidden sm:inline">Confidence 99.4%</span>
                   </div>
-                  <h1 className="text-lg md:text-xl font-bold text-foreground mt-1 tracking-tight">
-                    Biomarker Stability &amp; Metabolic Risk Profile
+                  <h1 className="text-base font-bold text-foreground mt-1 tracking-tight">
+                    Biomarker Stability Profile
                   </h1>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                    {normal} markers normal,{" "}
-                    <strong className="text-rose-600 font-semibold">
-                      {high} elevated{topHighNames ? ` (${topHighNames} priority)` : ""}
-                    </strong>
-                    , and{" "}
-                    <strong className="text-amber-600 font-semibold">
-                      {low} deficient{topLowNames ? ` (${topLowNames})` : ""}
-                    </strong>
-                    .
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {normal} normal · {" "}
+                    <span className="text-status-error-strong font-semibold">{high} elevated{topHighNames ? ` (${topHighNames})` : ""}</span>
+                    {" "}· <span className="text-status-warning-strong font-semibold">{low} deficient{topLowNames ? ` (${topLowNames})` : ""}</span>
                   </p>
                 </div>
               </div>
 
-              {/* Quick Navigation Action */}
-              <div className="flex items-center gap-2 self-start lg:self-center">
-                <Link
-                  href="/dashboard/reports"
-                  className="inline-flex items-center space-x-1.5 text-xs font-semibold text-foreground hover:text-primary bg-muted/40 hover:bg-muted/70 px-3.5 py-2 rounded-xl border border-border transition-colors shadow-xs"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-primary" />
-                  <span>All Lab Runs</span>
-                </Link>
-                <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center space-x-1 text-xs font-semibold text-muted-foreground hover:text-foreground bg-muted/20 px-3 py-2 rounded-xl border border-border transition-colors"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Audit Trail</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 4 KPI Stat Tiles */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mt-4">
-              {/* Total Evaluated */}
-              <div className="bg-card rounded-xl p-3.5 border border-border shadow-xs hover:border-primary/40 transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Total Evaluated
-                  </span>
-                  <Activity className="w-3.5 h-3.5 text-primary" />
+              {/* 4 KPI tiles */}
+              <div className="grid grid-cols-4 gap-2 flex-1 min-w-0">
+                {/* Total */}
+                <div className="bg-background rounded-xl p-3 border border-border text-center">
+                  <Activity className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <div className="text-xl font-extrabold text-foreground">{total}</div>
+                  <div className="text-[10px] text-muted-foreground font-medium">Total</div>
                 </div>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {total}
-                  </span>
-                  <span className="text-[10px] font-medium text-muted-foreground">Panel Items</span>
+                {/* Normal */}
+                <div className="bg-status-success-bg rounded-xl p-3 border border-status-success-border text-center">
+                  <CheckCircle2 className="w-4 h-4 text-status-success mx-auto mb-1" />
+                  <div className="text-xl font-extrabold text-status-success-strong">{normal}</div>
+                  <div className="text-[10px] text-status-success-foreground font-medium">Normal</div>
                 </div>
-                <div className="mt-1.5 flex items-center text-[10px] text-muted-foreground font-medium">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mr-1" />
-                  Comprehensive Screen
+                {/* Low */}
+                <div className="bg-status-warning-bg rounded-xl p-3 border border-status-warning-border text-center">
+                  <TrendingDown className="w-4 h-4 text-status-warning mx-auto mb-1" />
+                  <div className="text-xl font-extrabold text-status-warning-strong">{low}</div>
+                  <div className="text-[10px] text-status-warning-foreground font-medium">Low</div>
                 </div>
-              </div>
-
-              {/* Optimal Normal */}
-              <div className="bg-emerald-50/40 rounded-xl p-3.5 border border-emerald-100 shadow-xs hover:border-emerald-300 transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
-                    Optimal (Normal)
-                  </span>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                </div>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-extrabold text-emerald-600 tracking-tight">
-                    {normal}
-                  </span>
-                  <span className="text-[10px] font-medium text-emerald-700/80">
-                    {safePercentage}% ratio
-                  </span>
-                </div>
-                <div className="mt-1.5 flex items-center text-[10px] text-emerald-700 font-medium">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
-                  Stable baseline markers
-                </div>
-              </div>
-
-              {/* Below Reference (Low) */}
-              <div className="bg-amber-50/40 rounded-xl p-3.5 border border-amber-200 shadow-xs hover:border-amber-400 transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                    Below Reference
-                  </span>
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                </div>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-extrabold text-amber-600 tracking-tight">
-                    {low}
-                  </span>
-                  <span className="text-[10px] font-medium text-amber-700/80">Flagged Low</span>
-                </div>
-                <div className="mt-1.5 flex items-center text-[10px] text-amber-700 font-medium truncate">
-                  <AlertTriangle className="w-3 h-3 mr-1 shrink-0" />
-                  <span className="truncate">{topLowNames || "Deficient corridor"}</span>
-                </div>
-              </div>
-
-              {/* Above Reference (High) */}
-              <div className="bg-rose-50/40 rounded-xl p-3.5 border border-rose-200 shadow-xs hover:border-rose-400 transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700">
-                    Above Reference
-                  </span>
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                </div>
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-extrabold text-rose-600 tracking-tight">
-                    {high}
-                  </span>
-                  <span className="text-[10px] font-medium text-rose-700/80">Priority Attention</span>
-                </div>
-                <div className="mt-1.5 flex items-center text-[10px] text-rose-700 font-medium truncate">
-                  <AlertCircle className="w-3 h-3 mr-1 shrink-0" />
-                  <span className="truncate">{topHighNames || "Priority Attention"}</span>
+                {/* High */}
+                <div className="bg-status-error-bg rounded-xl p-3 border border-status-error-border text-center">
+                  <TrendingUp className="w-4 h-4 text-status-error mx-auto mb-1" />
+                  <div className="text-xl font-extrabold text-status-error-strong">{high}</div>
+                  <div className="text-[10px] text-status-error-foreground font-medium">High</div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 2. PRIORITY ACTION & CLINICAL SYNOPSIS */}
-          <section className="bg-card rounded-2xl p-5 md:p-6 border border-border shadow-xs relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-3">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/25 shadow-xs">
-                  <Sparkles className="w-4 h-4 text-primary" />
+          {/* ── 2. CLINICAL SYNOPSIS ── */}
+          <section className="bg-card rounded-xl border border-border p-4 md:p-5 shadow-xs">
+            {/* Header */}
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-foreground tracking-tight">
-                    Clinical Synopsis &amp; Priority Guidance
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Synthesized using evidence-based clinical protocols (ADA &amp; EASL 2026)
-                  </p>
+                  <h2 className="text-sm font-bold text-foreground leading-tight">Clinical Synopsis</h2>
+                  <p className="text-[10px] text-muted-foreground">Clear summary of your report in everyday language</p>
                 </div>
               </div>
-
-              {/* Audio & Summary actions */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={toggleAudio}
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-card border border-border hover:border-primary text-foreground text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border border-border hover:border-primary text-xs font-medium transition-colors cursor-pointer"
                 >
                   {isPlayingAudio ? (
-                    <>
-                      <VolumeX className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
-                      <span className="text-rose-600">Stop Audio</span>
-                    </>
+                    <><VolumeX className="w-3.5 h-3.5 text-status-error" /><span className="hidden sm:inline text-status-error">Stop</span></>
                   ) : (
-                    <>
-                      <Volume2 className="w-3.5 h-3.5 text-primary" />
-                      <span>Listen to Audio Overview</span>
-                    </>
+                    <><Volume2 className="w-3.5 h-3.5 text-primary" /><span className="hidden sm:inline">Listen</span></>
                   )}
                 </button>
                 <button
                   onClick={handleSavePrep}
-                  className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-primary/10 text-foreground hover:bg-primary/20 text-xs font-semibold border border-primary/25 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 text-xs font-medium transition-colors cursor-pointer"
                 >
                   <Bookmark className="w-3.5 h-3.5 text-primary" />
-                  <span>{savedPrep ? "Prep Copied!" : "Save Prep"}</span>
+                  <span className="hidden sm:inline">{savedPrep ? "Copied!" : "Save Summary"}</span>
                 </button>
               </div>
             </div>
 
-            {/* Synopsis Narrative */}
-            <p className="text-xs md:text-sm text-foreground/90 leading-relaxed font-normal">
+            {/* Synopsis text */}
+            <p className="text-xs md:text-sm text-foreground/85 leading-relaxed">
               {report.summary}
             </p>
 
-            {/* Critical Finding Tag Pills */}
+            {/* Focal findings pills */}
             {abnormalItems.length > 0 && (
-              <div className="mt-4 pt-3.5 border-t border-border flex flex-wrap items-center gap-2">
-                <span className="text-xs font-bold text-foreground mr-1">Immediate Focal Areas:</span>
-                {abnormalItems.slice(0, 4).map((item, idx) => (
+              <div className="mt-3 pt-3 border-t border-border flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Results to Review:</span>
+                {abnormalItems.slice(0, 5).map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleAskAboutTest(item.test)}
-                    className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
                       item.status === "High"
                         ? "bg-status-error-soft text-status-error-strong border-status-error-border hover:bg-status-error-bg"
                         : "bg-status-warning-soft text-status-warning-strong border-status-warning-border hover:bg-status-warning-bg"
                     }`}
                   >
-                    <AlertCircle className="w-3 h-3 mr-1" />
-                    <span>
-                      {item.test} ({item.value} {item.unit || ""})
-                    </span>
+                    <AlertCircle className="w-2.5 h-2.5" />
+                    {item.test} ({item.value} {item.unit || ""})
                   </button>
                 ))}
               </div>
             )}
           </section>
 
-          {/* 3. PRIORITIZED ACCORDION ACTION PLAN: HIGHS, LOWS & NORMALIZATION */}
+          {/* ── 3. PRIORITY ACTION PLAN ── */}
           <PriorityAccordion
             results={report.results}
             onAskAboutTest={handleAskAboutTest}
           />
 
-          {/* 4. METRIC DEVIATION & CLINICAL RANGE DISTRIBUTION VISUALIZER */}
+          {/* ── 4. RANGE DISTRIBUTION VISUALIZER ── */}
           <RangeDistribution
             metrics={report.results}
             onAskAboutTest={handleAskAboutTest}
           />
 
-          {/* 5. INTERACTIVE DOCTOR DISCUSSION PROMPTS & CHECKLIST (NUMBERS ONLY) */}
+          {/* ── 5. DOCTOR DISCUSSION PROMPTS ── */}
           <DoctorQuestions
             questions={report.doctorQuestions}
             onAskQuestion={(q) => setExternalQuery(q)}
           />
 
-          {/* 6. REDESIGNED DIAGNOSTIC LAB RESULTS TABLE */}
+          {/* ── 6. DIAGNOSTIC LAB RESULTS TABLE ── */}
           <ResultsTable
             results={report.results}
             onAskAboutTest={handleAskAboutTest}
           />
         </div>
 
-        {/* ===================================================================== */}
-        {/* RIGHT 25% COLUMN: DEEPLY USEFUL CLINICAL COPILOT (STICKY)              */}
-        {/* ===================================================================== */}
-        <div className="xl:col-span-1 sticky top-6">
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        {/* RIGHT — CHATBOT COLUMN (sticky, full-height)                        */}
+        {/* ═══════════════════════════════════════════════════════════════════ */}
+        <div className="xl:w-80 2xl:w-96 shrink-0 border-t xl:border-t-0 xl:border-l border-border bg-background xl:sticky xl:top-[49px] xl:h-[calc(100vh-49px)] xl:overflow-hidden flex flex-col">
           <ChatPanel
             reportId={report.reportId}
             filename={report.filename}
@@ -511,6 +402,7 @@ ${report.doctorQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
               askedAt: new Date(c.askedAt),
             }))}
             externalInputTrigger={externalQuery}
+            onClearExternalTrigger={() => setExternalQuery("")}
           />
         </div>
       </div>

@@ -44,7 +44,7 @@ export function ReportsList({ reports }: ReportsListProps) {
         <FileText className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
         <h4 className="text-base font-bold text-foreground">No reports uploaded yet</h4>
         <p className="text-xs text-muted-foreground mt-1.5 max-w-sm mx-auto leading-relaxed">
-          Upload your laboratory reports above to automatically extract metrics and review clinical interpretations.
+          Upload your medical reports above to understand what your results mean in clear, simple words.
         </p>
       </div>
     );
@@ -55,7 +55,7 @@ export function ReportsList({ reports }: ReportsListProps) {
       <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
         <div>
           <h3 className="text-base font-bold text-foreground tracking-tight">Recent Lab Reports</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Access and query your historical health tests</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Review your past medical reports and test results</p>
         </div>
         <span className="text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full">
           {reports.length} Total
@@ -91,7 +91,7 @@ export function ReportsList({ reports }: ReportsListProps) {
                     {formatDate(report.uploadedAt)}
                   </span>
                   <span>•</span>
-                  <span>{report.resultsCount} lab metrics analyzed</span>
+                  <span>{report.resultsCount} tests analyzed</span>
                 </div>
               </div>
 
@@ -100,7 +100,7 @@ export function ReportsList({ reports }: ReportsListProps) {
                   href={`/dashboard/${report.id}`}
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl shadow-xs transition-all active:scale-[0.99]"
                 >
-                  <span>View Breakdown</span>
+                  <span>View Report</span>
                   <ArrowRight className="w-3.5 h-3.5 text-primary-foreground" />
                 </Link>
 
